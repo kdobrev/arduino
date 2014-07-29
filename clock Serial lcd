@@ -1,10 +1,11 @@
 /*
-Clock
+Clock + alarm
 Serial
 lcd
 */
 
 #include <Time.h>  
+#include <TimeAlarms.h>
 #include <Wire.h>  
 #include <DS1307RTC.h>  // a basic DS1307 library that returns time as a time_t
 #include <LCD.h>
@@ -28,19 +29,22 @@ LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin)
 void setup()  {
   Serial.begin(9600);
   setSyncProvider(RTC.get);   // the function to get the time from the RTC 
- lcd.begin (16,2); //  <<----- My LCD was 16x2
+  //setTime(hour(),minute(),second(),day(),month(),year()); // set time to Saturday 8:29:00am Jan 1 2011
+  Alarm.timerRepeat(10, Repeats);            // timer for every 15 seconds
+  
+  lcd.begin (16,2); //  <<----- My LCD was 16x2
   // Switch on the backlight
   lcd.setBacklightPin(BACKLIGHT_PIN,POSITIVE);
   lcd.setBacklight(HIGH);
   lcd.home(); // go home
   lcd.print("Display warm-up!");
-  delay(2000);
-  lcd.clear();
+  Alarm.delay(2000);
+  lcd.clear(); 
 }
 
 void loop()
 {
-   delay(1000);
+   Alarm.delay(1000);
    digitalClockDisplay_serial();
    digitalClockDisplay_lcd(); 
 }
@@ -59,6 +63,7 @@ void digitalClockDisplay_serial(){
   Serial.println(); 
 }
 void digitalClockDisplay_lcd(){
+  lcd.clear();
   lcd.setCursor (0,0);        // go to start of 1nd line
   // digital clock display of the time
   lcd.print(hour());
@@ -86,4 +91,10 @@ void printDigits_lcd(int digits){
   if(digits < 10)
     lcd.print('0');
   lcd.print(digits);
+}
+
+void Repeats(){
+  lcd.setCursor(10,0);
+  lcd.print("Hey!");
+  Serial.println("Hey!");
 }
